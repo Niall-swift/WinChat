@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "538624653735",
+    "project_id": "winchat-ffcd7",
+    "storage_bucket": "winchat-ffcd7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:538624653735:android:191a21d9c2102a5f5a9e82",
+        "android_client_info": {
+          "package_name": "com.niallswift.WinChat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeEsO49uTAuq4-8tgQ7n8I0-Vg-MBnUYc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

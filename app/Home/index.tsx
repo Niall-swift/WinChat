@@ -8,8 +8,34 @@ import {
   ScrollView,
 } from "native-base";
 import Icon from "@expo/vector-icons/Ionicons";
+import {Audio} from "expo-av";
+import { useState, useEffect} from "react";
 
 export default function Home() {
+  const [sound, setSound] = useState();
+
+
+  /// buscando audio
+  async function playSound() {
+    console.log('Loading Sound');
+    const { sound } = await Audio.Sound.createAsync( require('../../sounds/message-swoosh.mp3')
+    );
+    setSound(sound);
+
+    console.log('Playing Sound');
+    await sound.playAsync();
+  }
+
+  /// colocando audio como dependencia
+  useEffect(() => {
+    return sound
+      ? () => {
+          console.log('Unloading Sound');
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
   return (
     <NativeBaseProvider>
       <Box flex={1} bgColor={"#fff"}>
@@ -136,7 +162,14 @@ export default function Home() {
             shadow={1}
             h={"50"}
           />
-          <Button rounded={50} w={"50"} h={"50"} bg={"#1DCC8E"} shadow={1}>
+          <Button
+          rounded={50}
+          w={"50"}
+          h={"50"}
+          bg={"#1DCC8E"}
+          shadow={1}
+          onPress={playSound}
+          >
             <Icon name="send" size={25} color={"#fff"} />
           </Button>
         </Box>
