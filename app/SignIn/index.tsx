@@ -10,6 +10,7 @@ export default function Signin () {
 
   const [image, setImage] = useState(null);
   const [imagePhat, setImagePhat] = useState(null);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPasseord] = useState('');
   
@@ -76,6 +77,15 @@ export default function Signin () {
       </Box>
       
       <Box w={'full'} justifyContent={'space-between'} h={150}>
+
+      <Input
+      placeholder="Nome"
+      variant={'rounded'}
+      bgColor={'#DBFBD2'}
+      borderWidth={0}
+      onChangeText={setName}
+      />
+
       <Input
       placeholder="email"
       variant={'rounded'}
@@ -94,7 +104,7 @@ export default function Signin () {
       </Box>
 
       <Button
-      onPress={(()=> Register(email, password))}
+      onPress={(()=> Register(name,email,password))}
       rounded={'full'}
       w={200}
       fontWeight={'bold'}

@@ -13,7 +13,7 @@ import {Audio} from "expo-av";
 import { useNavigation } from "@react-navigation/native";
 import { useState, useEffect, useContext} from "react";
 import { AuthContext } from "@/context/auth";
-import { addDoc, collection, doc, onSnapshot, orderBy, query, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, onSnapshot, orderBy, query, updateDoc, getDocs } from "firebase/firestore";
 
 export default function Chat() {
   const navigation = useNavigation();
@@ -21,7 +21,7 @@ export default function Chat() {
 
   const [sound, setSound] = useState();
 
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState("")
   
 
   const [listMessage, setListMessage] =  useState<{ id: string; message: string }[]>([])
@@ -51,43 +51,45 @@ export default function Chat() {
 
   
   // buscando messagem
-  useEffect(()=>{
-    async function SearchingForMessage() {
-
-      const listingMessage = collection(db, 'chat')
-
-      const q = query( listingMessage, orderBy('data', 'desc'))
-
-      const onSub = onSnapshot(q, (snapshot)=> {
-
-        let list: { id: string; message: string }[] = []
-
-        snapshot.forEach((doc)=> {
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      query(collection(db, "chat"), orderBy("data", "asc")),
+      (snapshot) => {
+        let list: { id: string; message: string; timestamp: Date }[] = [];;
+        snapshot.forEach((doc) => {
           list.push({
             id: doc.data().id,
             message: doc.data().message,
-          })
-          setListMessage(list)
-        })
-      })
-    }
-    SearchingForMessage()
-  },[])
+            timestamp: doc.data().data.toDate(),
+          });
+        });
+        setListMessage(list.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()));
+      },
+      (error) => {
+        console.error("Error listening to Firestore:", error);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
 
   // enviando mesagem
   async function SendMessage() {
     const send = collection(db, 'chat')
-      if(message !== ''){
+    if(message === ''){
+      alert('Error deve te um texto no campo')
+      return
+    }
+    try{
       await addDoc(send, {
         message: message,
         id: user.id,
         data: new Date(),
       })
       playSound()
-      setMessage('')
-      }else{
-        alert("mesagem nao pode se vazia")
-      }
+      setMessage("")
+    }catch{
+      alert("Error ao envia message")
+    }
   }
 
 
@@ -106,7 +108,7 @@ export default function Chat() {
           onPress={(() => HandleButton('Home'))}
           margin={4}
           padding={1}
-          bg={"#f20f0f"}
+          bg={"#ffffff"}
           >
             <Icon name="chevron-back-outline" size={30} />
           </Button>
@@ -188,6 +190,7 @@ export default function Chat() {
         >
           <Input
             onChangeText={setMessage}
+            value={message}
             placeholder="digite uma messagem aqui"
             variant="unstyled"
             rounded={30}
@@ -197,6 +200,7 @@ export default function Chat() {
             shadow={1}
             h={"50"}
           />
+
           <Button
           rounded={50}
           w={"50"}

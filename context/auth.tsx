@@ -54,14 +54,14 @@ export function AuthProvider ({children}) {
   }
 
 // função Register
-  async function Register(email,password) {
+  async function Register(name,email,password) {
   await createUserWithEmailAndPassword(auth,email, password)
   .then(async(value)=> {
     let uid = value.user.uid
     console.log('s')
     await setDoc(doc(db, "users", uid),{
       id: uid,
-      name: null,
+      name: name,
       phone: null,
       email: email,
       avatarURL: null
