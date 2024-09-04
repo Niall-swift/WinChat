@@ -17,6 +17,8 @@ export const AuthContext = createContext({});
 export function AuthProvider ({children}) {
 
   const [user, setUser] = useState(null);
+  console.log(user)
+
   const isAuthenticated = !!user
 
   // buscando dados local
@@ -28,7 +30,7 @@ export function AuthProvider ({children}) {
       /// VERIFICAR SE RECEBEMOS AS INFORMAÇOES DO USUARIO
       if(Object.keys(hasUser).length > 0){
         setUser({
-          id: hasUser.uid,
+          id: hasUser.id,
           name: hasUser.name,
           emial: hasUser.email,
           avatarURL: null,
@@ -70,10 +72,11 @@ export function AuthProvider ({children}) {
       let data = {
         uid: uid,
         email: value.user.email,
+        name: name,
         avatarURL: null
       };
       setUser(data)
-      RegisterForUsser(data)
+      RegisterForUser(data)
       await AsyncStorage.setItem('@WinChat', JSON.stringify(data))
     })
   })
@@ -84,7 +87,7 @@ export function AuthProvider ({children}) {
 
 
 // registe user na collection 
-  async function RegisterForUsser() {
+  async function RegisterForUser() {
     const docRef = collection(db, "users")
   }
 

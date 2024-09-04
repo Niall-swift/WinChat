@@ -74,15 +74,11 @@ export default function Chat() {
 
   // enviando mesagem
   async function SendMessage() {
-    const send = collection(db, 'chat')
-    if(message === ''){
-      alert('Error deve te um texto no campo')
-      return
-    }
+    const send = collection(db, "chat")
     try{
       await addDoc(send, {
         message: message,
-        id: user.id,
+        id: user.uid,
         data: new Date(),
       })
       playSound()
@@ -140,7 +136,7 @@ export default function Chat() {
 
             {listMessage.map((u, i)=>(
             <>
-              {user.id === u.id ?
+              {user.uid === u.id ?
                 <Box
                 key={i}
                 w={'container'}
@@ -201,6 +197,8 @@ export default function Chat() {
             h={"50"}
           />
 
+
+          {message !== '' ?
           <Button
           rounded={50}
           w={"50"}
@@ -211,6 +209,21 @@ export default function Chat() {
           >
             <Icon name="send" size={25} color={"#fff"} />
           </Button>
+          :
+          <Button
+          rounded={50}
+          w={"50"}
+          h={"50"}
+          bg={"#1DCC8E"}
+          shadow={1}
+          opacity={0.5}
+          disabled={true}
+          >
+            <Icon name="send" size={25} color={"#fff"} />
+          </Button>
+          }
+
+
         </Box>
       </Box>
     </NativeBaseProvider>
