@@ -1,15 +1,18 @@
 import { NativeBaseProvider, Box , Text, Button, VStack, HStack, Image, Input} from "native-base";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons'
+import { AuthContext } from "@/context/auth";
 
 
 export default function Signin () {
+  const {Register} = useContext(AuthContext)
 
   const [image, setImage] = useState(null);
+  const [imagePhat, setImagePhat] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPasseord] = useState('');
- 
+  
   /// selecionando um imagem para perfil 
   const handlePickerImage = async () => {
     const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -25,8 +28,11 @@ export default function Signin () {
       });
 
       if (canceled) {
+
         alert('Operação cancelada')
+
       } else {
+
         setImage(assets[0].uri)
         const fileName = assets[0].uri.substring(assets[0].uri.lastIndexOf('/') + 1, assets[0].uri.length)
         const extend = fileName.split('.')[1];
@@ -41,14 +47,16 @@ export default function Signin () {
               type: extend,
             })
           )
-        );
-
-        console.log(formData)
-        console.log(extend)
+        )
+        setImagePhat(assets[0].uri)
 
       }
+
     }
+
   };
+
+
 
   return (
     <NativeBaseProvider>
@@ -85,7 +93,15 @@ export default function Signin () {
       />
       </Box>
 
-      <Button rounded={'full'} w={200} fontWeight={'bold'} bgColor={'#1AAD5F'}>Registre-se</Button>
+      <Button
+      onPress={(()=> Register(email, password))}
+      rounded={'full'}
+      w={200}
+      fontWeight={'bold'}
+      bgColor={'#1AAD5F'}
+      >
+      Registre-se
+      </Button>
 
     </Box>
     </NativeBaseProvider>

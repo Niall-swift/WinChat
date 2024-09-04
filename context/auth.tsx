@@ -1,17 +1,57 @@
 import {createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { getDownloadURL, ref, uploadBytesResumable} from "firebase/storage";
-import storage from '@react-native-firebase/storage';
+import { db, auth, storage } from "@/firebase/fireBase";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
+type UserProps = {
+  id: string,
+  uid: string,
+  name: string,
+  email: string
+}
 export const AuthContext = createContext({});
 
 export function AuthProvider ({children}) {
 
   const [user, setUser] = useState(null);
+  const isAuthenticated = !!user
+
+  // buscando dados local
+  useEffect(()=>{
+    async function getUser() {
+      const userDetatil = await AsyncStorage.getItem('@WinChat');
+      let hasUser:UserProps = JSON.parse(userDetatil || '{}')
+
+      /// VERIFICAR SE RECEBEMOS AS INFORMAÇOES DO USUARIO
+      if(Object.keys(hasUser).length > 0){
+        setUser({
+          id: hasUser.uid,
+          name: hasUser.name,
+          emial: hasUser.email,
+          avatarURL: null,
+          phone: null,
+        })
+      }
+    }
+    getUser()
+  },[])
+
+  /// função para deslogar usuario
+  async function SingOut(){
+    await AsyncStorage.clear()
+    .then(()=>{
+      setUser({
+        id: '',
+        name: '',
+        emial:'',
+        avatarURL:'',
+        phone: '',
+      })
+    })
+  }
 
 // função Register
   async function Register(email,password) {
@@ -20,25 +60,34 @@ export function AuthProvider ({children}) {
     let uid = value.user.uid
     console.log('s')
     await setDoc(doc(db, "users", uid),{
-      uid: uid,
+      id: uid,
       name: null,
       phone: null,
       email: email,
       avatarURL: null
     })
-    .then(()=> {
+    .then(async()=> {
       let data = {
         uid: uid,
         email: value.user.email,
         avatarURL: null
       };
       setUser(data)
+      RegisterForUsser(data)
+      await AsyncStorage.setItem('@WinChat', JSON.stringify(data))
     })
   })
   .catch(()=> {
     console.log('n')
   })
 }
+
+
+// registe user na collection 
+  async function RegisterForUsser() {
+    const docRef = collection(db, "users")
+  }
+
 
 //  função Signin
   async function Signin({email, password}) {
@@ -56,25 +105,17 @@ export function AuthProvider ({children}) {
       avatarURL: docRef.data()?.avatarURL // Certifique-se de acessar corretamente a propriedade 'avatarURL', se necessário
     }
     setUser(data)
+    await AsyncStorage.setItem('@WinChat', JSON.stringify(data))
   })
 }
-
-/// envio de imagem
-  async function UploadFile(image) {
-    
-    const uploadRef = storage().ref('users').child(user?.uid)
-
-    return await uploadRef.putFile(image)
-  }
-
-
 
   return(
     <AuthContext.Provider value={{
       user,
       Register,
       Signin,
-      UploadFile,
+      SingOut,
+      isAuthenticated
     }}>
       {children}
     </AuthContext.Provider>
